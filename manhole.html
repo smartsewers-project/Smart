@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manhole Location — Sewer Pipeline Monitor</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script type="module" src="map.js"></script>
+</head>
+<body class="map-page">
+
+  <header class="map-page-header">
+    <div class="container map-header-inner">
+      <a href="index.html" class="back-link">
+        <i class="ti ti-arrow-left"></i>
+        Back to Dashboard
+      </a>
+      <div class="map-page-title">
+        <i class="ti ti-map-pin"></i>
+        <span id="mapPageTitle">Manhole Location</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="map-main">
+    <div class="container">
+
+      <div class="map-layout">
+
+        <!-- Sidebar -->
+        <div class="map-sidebar card">
+
+          <div class="map-sidebar-header">
+            <div class="manhole-number-badge" id="sidebarBadge">--</div>
+            <div>
+              <h2 id="sidebarTitle">Loading...</h2>
+              <span id="sidebarSubtitle" class="text-muted"></span>
+            </div>
+          </div>
+
+          <div class="sidebar-detail-list">
+            <div class="detail-row">
+              <i class="ti ti-building-community"></i>
+              <div>
+                <span class="detail-label">Address</span>
+                <span class="detail-value" id="sidebarAddress">Loading...</span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <i class="ti ti-current-location"></i>
+              <div>
+                <span class="detail-label">Coordinates</span>
+                <span class="detail-value" id="sidebarCoords">Loading...</span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <i class="ti ti-droplet-filled-2"></i>
+              <div>
+                <span class="detail-label">Current Level</span>
+                <span class="detail-value" id="sidebarLevel">-- %</span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <i class="ti ti-waves"></i>
+              <div>
+                <span class="detail-label">Flow Rate</span>
+                <span class="detail-value" id="sidebarFlow">-- L/min</span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <i class="ti ti-clock"></i>
+              <div>
+                <span class="detail-label">Last Update</span>
+                <span class="detail-value" id="sidebarTimestamp">--</span>
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="#"
+            id="osmDirectionsBtn"
+            class="btn btn-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="ti ti-direction"></i>
+            Open Directions in OpenStreetMap
+          </a>
+
+          <a
+            href="#"
+            id="googleDirectionsBtn"
+            class="btn btn-secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="ti ti-map-search"></i>
+            Open in Google Maps
+          </a>
+
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container-wrap card">
+          <div id="manholeMap" class="leaflet-map"></div>
+          <div class="map-loading" id="mapLoading">
+            <i class="ti ti-map-2"></i>
+            <span>Loading map...</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

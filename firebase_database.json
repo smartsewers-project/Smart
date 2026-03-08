@@ -1,0 +1,41 @@
+{
+  "system": {
+    "demoMode": true,
+    "version": "1.0.0",
+    "projectName": "Sewer Pipeline Monitor",
+    "lastConfigured": "2024-01-01T00:00:00.000Z"
+  },
+  "manholes": {
+    "manhole1": {
+      "address": "Example Street, Harare, Zimbabwe",
+      "coordinates": {
+        "lat": -17.8252,
+        "lng": 31.0335
+      },
+      "level": 25.4,
+      "flow": 42.1,
+      "timestamp": "2024-01-01T06:00:00.000Z"
+    },
+    "manhole2": {
+      "address": "Example Street (60m), Harare, Zimbabwe",
+      "coordinates": {
+        "lat": -17.8257,
+        "lng": 31.0341
+      },
+      "level": 23.8,
+      "flow": 45.3,
+      "timestamp": "2024-01-01T06:00:00.000Z"
+    }
+  },
+  "history": {
+    "logs": {
+      "example_entry_001": {
+        "timestamp": 1704067200000,
+        "mh1Level": 25.4,
+        "mh1Flow": 42.1,
+        "mh2Level": 23.8,
+        "mh2Flow": 45.3
+      }
+    }
+  }
+}

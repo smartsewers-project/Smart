@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sewer Pipeline Monitoring - Live Dashboard</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Tabler Icons (free, via CDN) -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"
+  />
+
+  <!-- Leaflet CSS (for manhole map, preloaded) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <!-- Chart.js -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+    defer
+  ></script>
+
+  <!-- Main dashboard module — loads after DOM -->
+  <script type="module" src="dashboard.js"></script>
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="header-overlay"></div>
+    <div class="header-inner container">
+
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="ti ti-topology-star-ring-3"></i>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Sewer Pipeline Monitoring</h1>
+          <span class="brand-subtitle">Live Dashboard</span>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="status-chip" id="connectionStatus">
+          <span class="status-pulse" id="statusPulse"></span>
+          <span id="statusText">Connecting...</span>
+        </div>
+        <div class="demo-badge hidden" id="demoBadge">
+          <i class="ti ti-player-play"></i>
+          DEMO MODE
+        </div>
+        <div class="header-clock" id="headerClock">--:--:--</div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ===================== ALERT BANNER ===================== -->
+  <section class="alerts-section hidden" id="alertsSection">
+    <div class="container">
+      <div class="alerts-header">
+        <i class="ti ti-alert-triangle"></i>
+        <span>Active System Alerts</span>
+        <span class="alerts-count" id="alertsCount">0</span>
+      </div>
+      <div class="alerts-list" id="alertsList"></div>
+    </div>
+  </section>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- ---------- METRIC CARDS ---------- -->
+      <section class="section">
+        <div class="section-label">
+          <i class="ti ti-activity"></i>
+          Current Readings
+        </div>
+        <div class="metrics-grid" id="metricsGrid">
+
+          <div class="metric-card" id="card-mh1-level">
+            <div class="metric-icon-wrap teal">
+              <i class="ti ti-droplet-filled-2"></i>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Manhole 1 — Level</span>
+              <div class="metric-value-row">
+                <span class="metric-value" id="mh1Level">--</span>
+                <span class="metric-unit">%</span>
+              </div>
+              <span class="metric-status-badge" id="mh1LevelStatus">--</span>
+            </div>
+          </div>
+
+          <div class="metric-card" id="card-mh2-level">
+            <div class="metric-icon-wrap teal">
+              <i class="ti ti-droplet-filled-2"></i>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Manhole 2 — Level</span>
+              <div class="metric-value-row">
+                <span class="metric-value" id="mh2Level">--</span>
+                <span class="metric-unit">%</span>
+              </div>
+              <span class="metric-status-badge" id="mh2LevelStatus">--</span>
+            </div>
+          </div>
+
+          <div class="metric-card" id="card-mh1-flow">
+            <div class="metric-icon-wrap orange">
+              <i class="ti ti-waves"></i>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Manhole 1 — Flow Rate</span>
+              <div class="metric-value-row">
+                <span class="metric-value" id="mh1Flow">--</span>
+                <span class="metric-unit">L/min</span>
+              </div>
+              <span class="metric-status-badge" id="mh1FlowStatus">--</span>
+            </div>
+          </div>
+
+          <div class="metric-card" id="card-mh2-flow">
+            <div class="metric-icon-wrap orange">
+              <i class="ti ti-waves"></i>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Manhole 2 — Flow Rate</span>
+              <div class="metric-value-row">
+                <span class="metric-value" id="mh2Flow">--</span>
+                <span class="metric-unit">L/min</span>
+              </div>
+              <span class="metric-status-badge" id="mh2FlowStatus">--</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ---------- LIVE CHARTS ---------- -->
+      <section class="section">
+        <div class="section-label">
+          <i class="ti ti-chart-line"></i>
+          Real-Time Monitoring
+          <span class="live-chip">
+            <span class="live-dot"></span>
+            LIVE
+          </span>
+        </div>
+        <div class="charts-grid">
+
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Sewage Level</span>
+              <span class="chart-unit">%</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="levelChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item teal">
+                <span class="legend-dot teal-bg"></span>
+                Manhole 1
+              </span>
+              <span class="legend-item orange">
+                <span class="legend-dot orange-bg"></span>
+                Manhole 2
+              </span>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Flow Rate</span>
+              <span class="chart-unit">L/min</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="flowChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item teal">
+                <span class="legend-dot teal-bg"></span>
+                Manhole 1
+              </span>
+              <span class="legend-item orange">
+                <span class="legend-dot orange-bg"></span>
+                Manhole 2
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ---------- MANHOLE LOCATION CARDS ---------- -->
+      <section class="section">
+        <div class="section-label">
+          <i class="ti ti-map-pin"></i>
+          Manhole Locations
+        </div>
+        <div class="manholes-grid">
+
+          <!-- Manhole 1 -->
+          <div class="manhole-card">
+            <div class="manhole-card-header">
+              <div class="manhole-number-badge">1</div>
+              <div>
+                <h3 class="manhole-card-title">Manhole 1</h3>
+                <span class="manhole-card-subtitle">Upstream Reference Point</span>
+              </div>
+              <div class="manhole-card-status" id="mh1CardStatus"></div>
+            </div>
+
+            <div class="manhole-info-list">
+              <div class="info-row">
+                <i class="ti ti-building-community"></i>
+                <span id="mh1Address">Loading from database...</span>
+              </div>
+              <div class="info-row">
+                <i class="ti ti-current-location"></i>
+                <span id="mh1Coords">Loading...</span>
+              </div>
+              <div class="info-row">
+                <i class="ti ti-clock"></i>
+                <span id="mh1Timestamp">No data received yet</span>
+              </div>
+            </div>
+
+            <div class="manhole-gauge">
+              <div class="gauge-header">
+                <span>Sewage Level</span>
+                <span id="mh1LevelPct" class="gauge-value">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-bar" id="mh1LevelBar" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="manhole-gauge">
+              <div class="gauge-header">
+                <span>Flow Rate</span>
+                <span id="mh1FlowVal" class="gauge-value">0 L/min</span>
+              </div>
+              <div class="flow-indicator" id="mh1FlowIndicator">
+                <div class="flow-bar" id="mh1FlowBar" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <a href="manhole.html?id=1" class="btn btn-primary">
+              <i class="ti ti-map-2"></i>
+              View Directions
+            </a>
+          </div>
+
+          <!-- Manhole 2 -->
+          <div class="manhole-card">
+            <div class="manhole-card-header">
+              <div class="manhole-number-badge orange-badge">2</div>
+              <div>
+                <h3 class="manhole-card-title">Manhole 2</h3>
+                <span class="manhole-card-subtitle">60m Downstream</span>
+              </div>
+              <div class="manhole-card-status" id="mh2CardStatus"></div>
+            </div>
+
+            <div class="manhole-info-list">
+              <div class="info-row">
+                <i class="ti ti-building-community"></i>
+                <span id="mh2Address">Loading from database...</span>
+              </div>
+              <div class="info-row">
+                <i class="ti ti-current-location"></i>
+                <span id="mh2Coords">Loading...</span>
+              </div>
+              <div class="info-row">
+                <i class="ti ti-clock"></i>
+                <span id="mh2Timestamp">No data received yet</span>
+              </div>
+            </div>
+
+            <div class="manhole-gauge">
+              <div class="gauge-header">
+                <span>Sewage Level</span>
+                <span id="mh2LevelPct" class="gauge-value">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-bar orange-bar" id="mh2LevelBar" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="manhole-gauge">
+              <div class="gauge-header">
+                <span>Flow Rate</span>
+                <span id="mh2FlowVal" class="gauge-value">0 L/min</span>
+              </div>
+              <div class="flow-indicator" id="mh2FlowIndicator">
+                <div class="flow-bar orange-flow" id="mh2FlowBar" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <a href="manhole.html?id=2" class="btn btn-primary">
+              <i class="ti ti-map-2"></i>
+              View Directions
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ---------- HISTORICAL DATA ---------- -->
+      <section class="section" id="historySection">
+        <div class="section-label">
+          <i class="ti ti-history"></i>
+          Historical Data Viewer
+        </div>
+
+        <div class="history-controls card">
+          <div class="controls-row">
+            <div class="form-group">
+              <label class="form-label">Start Date &amp; Time</label>
+              <input
+                type="datetime-local"
+                id="startDate"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date &amp; Time</label>
+              <input
+                type="datetime-local"
+                id="endDate"
+                class="form-input"
+              />
+            </div>
+            <div class="controls-actions">
+              <button class="btn btn-primary" id="fetchHistoryBtn">
+                <i class="ti ti-database-search"></i>
+                Fetch Records
+              </button>
+              <button class="btn btn-secondary" id="exportCsvBtn" disabled>
+                <i class="ti ti-download"></i>
+                Export CSV
+              </button>
+            </div>
+          </div>
+          <div class="history-status" id="historyStatus">
+            <i class="ti ti-info-circle"></i>
+            Select a date range and click Fetch Records to view historical data.
+          </div>
+        </div>
+
+        <div class="charts-grid hidden" id="historyCharts">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Historical Sewage Levels</span>
+              <span class="chart-unit">%</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="histLevelChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Historical Flow Rates</span>
+              <span class="chart-unit">L/min</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="histFlowChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div><!-- /container -->
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Sewer Pipeline Monitoring System &mdash; University Prototype &copy; 2024</span>
+      <span id="lastUpdated">Last updated: --</span>
+    </div>
+  </footer>
+
+</body>
+</html>

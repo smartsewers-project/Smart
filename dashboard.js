@@ -12,7 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 import { firebaseConfig }  from "./config/config.js";
-import { startDemoSimulation, stopDemoSimulation } from "./functions/demoSimulator.js";
+import { startDemoSimulation, stopDemoSimulation } from "./mine/demoSimulator.js";
 
 // ─── Firebase Init ────────────────────────────────────────
 const app = initializeApp(firebaseConfig);
@@ -631,4 +631,5 @@ if (typeof Chart !== "undefined") {
   document.addEventListener("DOMContentLoaded", init);
 
 }
+
 
